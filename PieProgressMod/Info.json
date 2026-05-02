@@ -1,0 +1,7 @@
+{
+  "Id": "PieProgressMod",
+  "DisplayName": "PieProgressMod",
+  "Version": "1.0.0",
+  "Author": "SleepingCui",
+  "EntryMethod": "PieProgressMod.Main.Load"
+  }
