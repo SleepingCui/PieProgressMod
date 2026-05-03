@@ -1,12 +1,16 @@
-﻿using UnityModManagerNet;
-
-namespace PieProgressMod
+﻿namespace PieProgressMod
 {
-    public class MainSettings : UnityModManager.ModSettings
+    public class MainSettings : UnityModManagerNet.UnityModManager.ModSettings
     {
         public float posx { get; set; } = -80f;
         public float posy { get; set; } = -80f;
         public float scale { get; set; } = 1.0f;
+
+        public bool usex { get; set; } = true;
+        public float xoffx { get; set; } = 30f;
+        public float xoffy { get; set; } = 0f;
+        public string font { get; set; } = "Arial";
+        public string xfmt { get; set; } = "{0}%";
 
         public int fillr { get; set; } = 255;
         public int fillg { get; set; } = 255;
@@ -28,7 +32,7 @@ namespace PieProgressMod
         public int borderb { get; set; } = 255;
         public int bordera { get; set; } = 0;
 
-        public override void Save(UnityModManager.ModEntry entry)
+        public override void Save(UnityModManagerNet.UnityModManager.ModEntry entry)
         {
             Save(this, entry);
         }

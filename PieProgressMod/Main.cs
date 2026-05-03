@@ -183,6 +183,35 @@ namespace PieProgressMod
             GUILayout.Label(sets.bordera.ToString(), GUILayout.Width(30));
             GUILayout.EndHorizontal();
 
+            GUILayout.Space(10);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Display XAccuracy:", GUILayout.Width(160));
+            sets.usex = GUILayout.Toggle(sets.usex, "");
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("X Offset:", GUILayout.Width(160));
+            sets.xoffx = GUILayout.HorizontalSlider(sets.xoffx, -500f, 500f, GUILayout.Width(200));
+            GUILayout.Label(sets.xoffx.ToString("F0"), GUILayout.Width(50));
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Y Offset:", GUILayout.Width(160));
+            sets.xoffy = GUILayout.HorizontalSlider(sets.xoffy, -500f, 500f, GUILayout.Width(200));
+            GUILayout.Label(sets.xoffy.ToString("F0"), GUILayout.Width(50));
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Font:", GUILayout.Width(160));
+            sets.font = GUILayout.TextField(sets.font, GUILayout.Width(200));
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Format:", GUILayout.Width(160));
+            sets.xfmt = GUILayout.TextField(sets.xfmt, GUILayout.Width(200));
+            GUILayout.EndHorizontal();
+
             GUILayout.EndVertical();
         }
 

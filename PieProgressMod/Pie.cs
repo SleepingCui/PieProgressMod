@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,18 +19,28 @@ namespace PieProgressMod
         private Image pie;
         private Image bg;
         private Image outline;
+        private Text xtext;
         private RectTransform bgrt;
         private RectTransform fillrt;
         private RectTransform outlinert;
-
+        private RectTransform xtextrt;
         private bool wasplay = false;
+        private GameObject canvasobj;
+
         void Awake()
         {
             instance = this;
         }
         void OnDestroy()
         {
-            if (instance == this) instance = null;
+            if (instance == this)
+            {
+                if (canvasobj != null)
+                {
+                    Destroy(canvasobj);
+                }
+                instance = null;
+            }
         }
         public void SetState(ProgressState newstate)
         {
@@ -38,7 +49,7 @@ namespace PieProgressMod
 
         void Start()
         {
-            var canvasobj = new GameObject("PieProgressCanvas");
+            canvasobj = new GameObject("PieProgressCanvas");
             Canvas canvas = canvasobj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvasobj.AddComponent<CanvasScaler>();
@@ -47,7 +58,6 @@ namespace PieProgressMod
 
             Texture2D circletex = new Texture2D(128, 128);
             Texture2D ringtex = new Texture2D(128, 128);
-
             for (int y = 0; y < 128; y++)
             {
                 for (int x = 0; x < 128; x++)
@@ -64,7 +74,7 @@ namespace PieProgressMod
 
                     if (dist >= 56f && dist <= 60f)
                     {
-                        TexSetRingPixel(ringtex, x, y);
+                        ringtex.SetPixel(x, y, Color.white);
                     }
                     else
                     {
@@ -108,11 +118,19 @@ namespace PieProgressMod
                 rt.anchorMax = new Vector2(1, 1);
                 rt.pivot = new Vector2(1, 1);
             }
-        }
 
-        private void TexSetRingPixel(Texture2D tex, int x, int y)
-        {
-            tex.SetPixel(x, y, Color.white);
+            var textobj = new GameObject("PieXAccText");
+            textobj.transform.SetParent(canvasobj.transform);
+            xtext = textobj.AddComponent<Text>();
+            xtext.font = (Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf");
+            xtext.fontSize = 14;
+            xtext.alignment = TextAnchor.MiddleCenter;
+            xtext.color = Color.white;
+            xtextrt = textobj.GetComponent<RectTransform>();
+            xtextrt.anchorMin = new Vector2(1, 1);
+            xtextrt.anchorMax = new Vector2(1, 1);
+            xtextrt.pivot = new Vector2(0.5f, 0.5f);
+            xtextrt.sizeDelta = new Vector2(200, 30);
         }
 
         void Update()
@@ -156,8 +174,50 @@ namespace PieProgressMod
                     }
 
                     float pcomp = scrController.instance.percentComplete;
-
                     pie.fillAmount = Mathf.Clamp01(pcomp);
+
+                    if (xtext != null)
+                    {
+                        if (Main.sets.usex)
+                        {
+                            xtext.gameObject.SetActive(true);
+                            float xval = 1f;
+                            try
+                            {
+                                if (scrController.instance != null && scrController.instance.mistakesManager != null)
+                                {
+                                    float perx = scrController.instance.mistakesManager.percentXAcc;
+                                    xval = float.IsNaN(perx) ? 1f : perx;
+                                }
+                            }
+                            catch
+                            {
+                                xval = 1f;
+                            }
+
+                            xtext.text = string.Format(Main.sets.xfmt, (xval * 100f).ToString("F1"));
+
+                            Font customfont = null;
+                            try
+                            {
+                                customfont = (Font)Resources.GetBuiltinResource(typeof(Font), Main.sets.font + ".ttf");
+                            }
+                            catch { }
+
+                            if (customfont == null)
+                            {
+                                customfont = (Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf");
+                            }
+                            xtext.font = customfont;
+
+                            Vector2 textpos = new Vector2(Main.sets.posx + Main.sets.xoffx, Main.sets.posy + Main.sets.xoffy);
+                            xtextrt.anchoredPosition = textpos;
+                        }
+                        else
+                        {
+                            xtext.gameObject.SetActive(false);
+                        }
+                    }
                 }
                 else
                 {
@@ -165,6 +225,10 @@ namespace PieProgressMod
                     pie.gameObject.SetActive(false);
                     bg.gameObject.SetActive(false);
                     outline.gameObject.SetActive(false);
+                    if (xtext != null)
+                    {
+                        xtext.gameObject.SetActive(false);
+                    }
                 }
             }
         }
@@ -173,7 +237,7 @@ namespace PieProgressMod
     [HarmonyPatch(typeof(scrController), "OnLandOnPortal")]
     public static class WinPagePatch
     {
-        public static void Postfix(scrController __instance)
+        public static void Postfix(scrController inst)
         {
             if (!Main.enabled) return;
             if (Pie.instance != null)
